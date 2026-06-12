@@ -45,9 +45,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "http://localhost:3000/api",
-      "apiUrlAndroid": "http://10.0.2.2:3000/api",
-      "apiUrlPhone": "http://192.168.18.4:3000/api",
+      "apiUrl": "https://api-production-197c.up.railway.app/api",
+      "apiUrlAndroid": "https://api-production-197c.up.railway.app/api",
+      "apiUrlPhone": "https://api-production-197c.up.railway.app/api",
       "router": {
         "origin": false
       },
