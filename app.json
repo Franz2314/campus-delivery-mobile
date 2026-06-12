@@ -27,8 +27,9 @@
       },
       "package": "pe.utp.campusdelivery",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -46,7 +47,13 @@
     "extra": {
       "apiUrl": "http://localhost:3000/api",
       "apiUrlAndroid": "http://10.0.2.2:3000/api",
-      "apiUrlPhone": "http://192.168.18.4:3000/api"
+      "apiUrlPhone": "http://192.168.18.4:3000/api",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "8690c188-b6b5-46b6-b545-fc1b4ffb6d5c"
+      }
     }
   }
 }
