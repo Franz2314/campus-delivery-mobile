@@ -9,12 +9,14 @@ import {
   Alert,
   Image,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 interface Props {
   visible: boolean;
@@ -36,6 +38,19 @@ export default function PaymentModal({ visible, onClose, onConfirm }: Props) {
     onClose();
   }, [reset, onClose]);
 
+  const toBase64 = useCallback(async (fileUri: string): Promise<string> => {
+    if (fileUri.startsWith('data:')) return fileUri;
+    try {
+      const base64 = await FileSystem.readAsStringAsync(fileUri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return `data:image/jpeg;base64,${base64}`;
+    } catch {
+      // fallback: enviar URI directa (web, etc)
+      return fileUri;
+    }
+  }, []);
+
   const pickFromGallery = useCallback(async () => {
     setBusy(true);
     try {
@@ -48,9 +63,9 @@ export default function PaymentModal({ visible, onClose, onConfirm }: Props) {
         return;
       }
       const r = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
-        quality: 0.7,
+        quality: 0.5,
       });
       if (!r.canceled && r.assets[0]) {
         setUri(r.assets[0].uri);
@@ -73,7 +88,7 @@ export default function PaymentModal({ visible, onClose, onConfirm }: Props) {
       }
       const r = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        quality: 0.7,
+        quality: 0.5,
       });
       if (!r.canceled && r.assets[0]) {
         setUri(r.assets[0].uri);
@@ -83,12 +98,21 @@ export default function PaymentModal({ visible, onClose, onConfirm }: Props) {
     }
   }, []);
 
-  const handleConfirm = useCallback(() => {
-    if (uri) {
+  const handleConfirm = useCallback(async () => {
+    if (!uri) return;
+    setBusy(true);
+    try {
+      const dataUri = await toBase64(uri);
+      onConfirm(dataUri);
+      reset();
+    } catch {
+      // fallback
       onConfirm(uri);
       reset();
+    } finally {
+      setBusy(false);
     }
-  }, [uri, onConfirm, reset]);
+  }, [uri, onConfirm, reset, toBase64]);
 
   return (
     <Modal
