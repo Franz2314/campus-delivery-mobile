@@ -34,6 +34,7 @@ export interface Pedido {
   comprobante_verificado?: boolean;
   comprobante_rechazado?: boolean;
   motivo_cancelacion?: string;
+  codigo_recogida?: string;
   created_at: string;
   updated_at: string;
   detalles?: DetallePedido[];

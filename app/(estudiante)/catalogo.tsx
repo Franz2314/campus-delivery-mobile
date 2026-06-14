@@ -169,6 +169,12 @@ function Header({ firstName, itemCount, router, signOut }: any) {
       >
         <Text style={styles.puntosIcon}>⭐</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={{ marginRight: 8 }}
+        onPress={() => router.push('/(estudiante)/pedidos')}
+      >
+        <Text style={{ color: '#6B7280', fontSize: 13, fontWeight: '600' }}>Pedidos</Text>
+      </TouchableOpacity>
       <TouchableOpacity onPress={signOut} style={styles.logoutBtn} activeOpacity={0.7}>
         <Text style={styles.logoutText}>Salir</Text>
       </TouchableOpacity>

@@ -163,6 +163,14 @@ export default function EntregaScreen() {
         </View>
       )}
 
+      {pedido.codigo_recogida && (
+        <View style={styles.pickupBox}>
+          <Text style={styles.pickupLabel}>🔑 Código de recogida</Text>
+          <Text style={styles.pickupCode}>{pedido.codigo_recogida}</Text>
+          <Text style={styles.pickupHint}>Pídele este código al negocio para recoger el pedido</Text>
+        </View>
+      )}
+
       <View style={styles.card}>
         <Text style={styles.cardLabel}>🕐 Hora programada</Text>
         <Text style={styles.cardValue}>{horaFormateada}</Text>
@@ -359,6 +367,17 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8,
     padding: 12, fontSize: 14, color: '#1F2937', marginBottom: 8,
   },
+  pickupBox: {
+    backgroundColor: '#FEF3C7', borderRadius: 10, padding: 14, marginTop: 8,
+    alignItems: 'center',
+  },
+  pickupLabel: { fontSize: 12, color: '#92400E', fontWeight: '700', textTransform: 'uppercase' },
+  pickupCode: {
+    fontSize: 28, fontWeight: '900', color: '#C0392B',
+    letterSpacing: 6, marginTop: 4,
+  },
+  pickupHint: { fontSize: 11, color: '#92400E', marginTop: 4, textAlign: 'center' },
+
   cancelActionBtn: {
     marginTop: 8, paddingVertical: 12, borderRadius: 10,
     borderWidth: 1, borderColor: '#C0392B', alignItems: 'center',

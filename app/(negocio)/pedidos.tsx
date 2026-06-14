@@ -23,7 +23,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 
 import { useAuth } from '../../hooks/useAuth';
 import pedidosService, { EstadoPedido, Pedido } from '../../services/pedidos.service';
@@ -40,6 +40,7 @@ const ACCIONES_POR_ESTADO: Partial<
 };
 
 export default function NegocioPedidosScreen() {
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,7 +171,7 @@ export default function NegocioPedidosScreen() {
       <View style={styles.card}>
         <View style={styles.cardTop}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>Pedido #{p.id}</Text>
+            <Text style={styles.cardTitle}>Pedido #{p.id?.toString().slice(0, 8)}</Text>
             <Text style={styles.cardSubtitle}>
               {new Date(p.created_at).toLocaleTimeString('es-PE', {
                 hour: '2-digit',
@@ -187,6 +188,28 @@ export default function NegocioPedidosScreen() {
           <OrderStatus estado={p.estado} />
           <Text style={styles.horaProgramada}>🕐 {horaTxt}</Text>
         </View>
+
+        {/* Productos del pedido */}
+        {p.detalles && p.detalles.length > 0 && (
+          <View style={styles.detallesSection}>
+            {p.detalles.map((d) => (
+              <View key={String(d.producto_id)} style={styles.detalleRow}>
+                <Text style={styles.detalleCantidad}>{d.cantidad}×</Text>
+                <Text style={styles.detalleNombre} numberOfLines={1}>{d.nombre}</Text>
+                <Text style={styles.detalleSubtotal}>S/ {d.subtotal.toFixed(2)}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Código de recogida */}
+        {p.codigo_recogida && (
+          <View style={styles.pickupBox}>
+            <Text style={styles.pickupLabel}>🔑 Código de recogida</Text>
+            <Text style={styles.pickupCode}>{p.codigo_recogida}</Text>
+            <Text style={styles.pickupHint}>Entrégaselo al repartidor para confirmar la recogida</Text>
+          </View>
+        )}
 
         {p.comprobante_url && p.estado === 'pendiente' && !p.comprobante_verificado && (
           <View style={styles.comprobanteSection}>
@@ -305,9 +328,23 @@ export default function NegocioPedidosScreen() {
           </Text>
           <Text style={styles.subtitle}>Pedidos entrantes</Text>
         </View>
-        <TouchableOpacity onPress={signOut} activeOpacity={0.7}>
-          <Text style={styles.logoutText}>Salir</Text>
-        </TouchableOpacity>
+        <View style={styles.headerLinks}>
+          <TouchableOpacity
+            style={styles.headerTab}
+            onPress={() => router.push('/(negocio)/pedidos')}
+          >
+            <Text style={[styles.headerTabText, styles.headerTabActive]}>Pedidos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerTab}
+            onPress={() => router.push('/(negocio)/menu')}
+          >
+            <Text style={styles.headerTabText}>Menú</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={signOut} activeOpacity={0.7}>
+            <Text style={styles.logoutText}>Salir</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {loading ? (
@@ -357,6 +394,10 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 18, fontWeight: '800', color: '#1F2937' },
   subtitle: { fontSize: 13, color: '#6B7280', marginTop: 2 },
   logoutText: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
+  headerLinks: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerTab: {},
+  headerTabText: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
+  headerTabActive: { color: '#C0392B', fontWeight: '800' },
 
   card: {
     backgroundColor: '#FAFAFA', borderRadius: 12, padding: 14,
@@ -415,6 +456,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6', alignItems: 'center',
   },
   terminalText: { color: '#6B7280', fontSize: 12, fontWeight: '600' },
+
+  detallesSection: {
+    marginTop: 10, backgroundColor: '#F3F4F6', borderRadius: 8, padding: 10,
+  },
+  detalleRow: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 4,
+  },
+  detalleCantidad: {
+    fontSize: 13, fontWeight: '700', color: '#C0392B', width: 28,
+  },
+  detalleNombre: {
+    flex: 1, fontSize: 13, color: '#1F2937', fontWeight: '500',
+  },
+  detalleSubtotal: {
+    fontSize: 13, fontWeight: '700', color: '#374151', marginLeft: 8,
+  },
+  pickupBox: {
+    marginTop: 10, backgroundColor: '#FEF3C7', borderRadius: 8, padding: 12,
+    alignItems: 'center',
+  },
+  pickupLabel: { fontSize: 12, color: '#92400E', fontWeight: '600' },
+  pickupCode: {
+    fontSize: 28, fontWeight: '900', color: '#C0392B',
+    letterSpacing: 6, marginTop: 4,
+  },
+  pickupHint: { fontSize: 11, color: '#92400E', marginTop: 4, textAlign: 'center' },
 
   emptyEmoji: { fontSize: 50, marginBottom: 10 },
   emptyTitle: { fontSize: 16, fontWeight: '700', color: '#1F2937' },

@@ -180,6 +180,14 @@ export default function SeguimientoScreen() {
         <Text style={styles.cardValue}>{horaFormateada}</Text>
       </View>
 
+      {pedido.codigo_recogida && (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>🔑 Código de recogida</Text>
+          <Text style={styles.pickupCode}>{pedido.codigo_recogida}</Text>
+          <Text style={styles.pickupHint}>Entrégaselo al repartidor para confirmar la recogida</Text>
+        </View>
+      )}
+
       {pedido.comprobante_url && (
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Comprobante de pago</Text>
@@ -302,6 +310,11 @@ const styles = StyleSheet.create({
   cardLabel: { fontSize: 11, color: '#6B7280', textTransform: 'uppercase', fontWeight: '700', letterSpacing: 0.5 },
   cardValue: { fontSize: 15, color: '#1F2937', fontWeight: '600', marginTop: 4 },
   cardTotal: { fontSize: 20, fontWeight: '800', color: '#C0392B', marginTop: 4 },
+  pickupCode: {
+    fontSize: 28, fontWeight: '900', color: '#C0392B',
+    letterSpacing: 6, marginTop: 4, textAlign: 'center',
+  },
+  pickupHint: { fontSize: 11, color: '#92400E', marginTop: 4, textAlign: 'center' },
 
   timelineTitle: { fontSize: 15, fontWeight: '800', color: '#1F2937', marginTop: 22, marginBottom: 14 },
   timeline: { paddingLeft: 8 },

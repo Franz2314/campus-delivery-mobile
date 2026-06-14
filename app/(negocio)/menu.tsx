@@ -215,9 +215,23 @@ export default function NegocioMenuScreen() {
           </Text>
           <Text style={styles.subtitle}>Gestiona tu menú</Text>
         </View>
-        <TouchableOpacity onPress={signOut} activeOpacity={0.7}>
-          <Text style={styles.logoutText}>Salir</Text>
-        </TouchableOpacity>
+        <View style={styles.headerLinks}>
+          <TouchableOpacity
+            style={styles.headerTab}
+            onPress={() => router.push('/(negocio)/pedidos')}
+          >
+            <Text style={[styles.headerTabText]}>Pedidos</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerTab}
+            onPress={() => router.push('/(negocio)/menu')}
+          >
+            <Text style={[styles.headerTabText, styles.headerTabActive]}>Menú</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={signOut} activeOpacity={0.7}>
+            <Text style={styles.logoutText}>Salir</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity style={styles.addBtn} onPress={openCrear} activeOpacity={0.85}>
@@ -420,6 +434,10 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 18, fontWeight: '800', color: '#1F2937' },
   subtitle: { fontSize: 13, color: '#6B7280', marginTop: 2 },
   logoutText: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
+  headerLinks: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerTab: {},
+  headerTabText: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
+  headerTabActive: { color: '#C0392B', fontWeight: '800' },
 
   addBtn: {
     marginHorizontal: 16, marginTop: 6, marginBottom: 12,

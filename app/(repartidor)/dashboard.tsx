@@ -139,7 +139,7 @@ export default function RepartidorDashboard() {
               item.repartidor_id !== null &&
               item.repartidor_id !== undefined &&
               String(item.repartidor_id) === String(user?.id);
-            const disponible = item.estado === 'confirmado';
+            const disponible = ['confirmado', 'en_preparacion'].includes(item.estado);
             const horaTxt = new Date(item.hora_programada).toLocaleTimeString(
               'es-PE',
               { hour: '2-digit', minute: '2-digit' },
@@ -173,6 +173,13 @@ export default function RepartidorDashboard() {
                 <View style={styles.statusRow}>
                   <OrderStatus estado={item.estado} />
                 </View>
+
+                {item.codigo_recogida && (
+                  <View style={styles.pickupBox}>
+                    <Text style={styles.pickupLabel}>🔑 Código de recogida</Text>
+                    <Text style={styles.pickupCode}>{item.codigo_recogida}</Text>
+                  </View>
+                )}
 
                 {disponible ? (
                   <TouchableOpacity
@@ -272,6 +279,15 @@ const styles = StyleSheet.create({
   },
   secondaryBtnText: { color: '#C0392B', fontSize: 14, fontWeight: '700' },
 
+  pickupBox: {
+    marginTop: 10, backgroundColor: '#FEF3C7', borderRadius: 8, padding: 10,
+    alignItems: 'center',
+  },
+  pickupLabel: { fontSize: 11, color: '#92400E', fontWeight: '600' },
+  pickupCode: {
+    fontSize: 22, fontWeight: '900', color: '#C0392B',
+    letterSpacing: 4, marginTop: 2,
+  },
   emptyEmoji: { fontSize: 50, marginBottom: 10 },
   emptyTitle: { fontSize: 16, fontWeight: '700', color: '#1F2937' },
   emptySubtitle: { fontSize: 13, color: '#6B7280', marginTop: 4, textAlign: 'center' },
