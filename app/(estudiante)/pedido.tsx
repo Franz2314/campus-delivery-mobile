@@ -27,6 +27,7 @@ export default function PedidoScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     pabellon_id: string;
+    piso: string;
     hora_programada: string;
   }>();
   const { items, total, clear } = useCart();
@@ -60,6 +61,7 @@ export default function PedidoScreen() {
     try {
       const pedido = await pedidosService.crear({
         pabellon_id: params.pabellon_id,
+        piso: parseInt(params.piso, 10) || 1,
         hora_programada: params.hora_programada,
         items: items.map((i) => ({
           producto_id: i.producto_id,
@@ -112,6 +114,12 @@ export default function PedidoScreen() {
         <View style={styles.totalBox}>
           <Text style={styles.totalLabel}>Total a pagar</Text>
           <Text style={styles.totalAmount}>S/ {total.toFixed(2)}</Text>
+        </View>
+
+        <View style={styles.locationBox}>
+          <Text style={styles.locationText}>
+            📍 Pabellón {params.pabellon_id ? String.fromCharCode(64 + parseInt(params.pabellon_id)) : '—'} · Piso {params.piso || '1'}
+          </Text>
         </View>
 
         <Text style={styles.sectionTitle}>Resumen</Text>
@@ -180,6 +188,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
 
   h1: { fontSize: 22, fontWeight: '800', color: '#1F2937' },
+
+  locationBox: {
+    flexDirection: 'row', justifyContent: 'center', marginTop: 10,
+  },
+  locationText: { color: '#374151', fontSize: 15, fontWeight: '600' },
 
   totalBox: {
     backgroundColor: '#FDEDEC',

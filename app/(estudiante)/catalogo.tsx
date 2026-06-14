@@ -1,18 +1,8 @@
-/**
- * Pantalla de catálogo para el estudiante.
- *
- * - Saluda al usuario autenticado.
- * - Filtra productos por categoría (chips horizontales).
- * - Renderiza una grilla 2x de ProductCard.
- * - Header con badge del carrito + botón de logout.
- * - Pull-to-refresh + recarga al volver a la pantalla.
- */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -36,6 +26,7 @@ export default function CatalogoScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [categoria, setCategoria] = useState<string>('Todos');
+  const chipScrollRef = useRef<FlatList>(null);
 
   const cargar = useCallback(
     async (showSpinner = true) => {
@@ -55,15 +46,10 @@ export default function CatalogoScreen() {
     [categoria],
   );
 
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
+  useEffect(() => { cargar(); }, [cargar]);
 
-  // Recargar al volver a la pantalla (p.ej. tras login)
   useFocusEffect(
-    useCallback(() => {
-      cargar(false);
-    }, [cargar]),
+    useCallback(() => { cargar(false); }, [cargar]),
   );
 
   const onRefresh = useCallback(() => {
@@ -87,88 +73,105 @@ export default function CatalogoScreen() {
 
   const firstName = user?.nombre?.split(' ')[0] ?? 'estudiante';
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.greeting}>Hola, {firstName} 👋</Text>
-          <Text style={styles.subtitle}>¿Qué te llevas hoy?</Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.cartBtn}
-          onPress={() => router.push('/(estudiante)/carrito')}
-        >
-          <Text style={styles.cartIcon}>🛒</Text>
-          {itemCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{itemCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={signOut} style={styles.logoutBtn} activeOpacity={0.7}>
-          <Text style={styles.logoutText}>Salir</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Chips de categoría */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipsRow}
+  const renderChip = (c: string, i: number) => {
+    const active = categoria === c;
+    return (
+      <TouchableOpacity
+        key={c}
+        onPress={() => setCategoria(c)}
+        style={[styles.chip, active && styles.chipActive]}
+        activeOpacity={0.85}
       >
-        {CATEGORIES.map((c) => {
-          const active = categoria === c;
-          return (
-            <TouchableOpacity
-              key={c}
-              onPress={() => setCategoria(c)}
-              style={[styles.chip, active && styles.chipActive]}
-              activeOpacity={0.85}
-            >
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>
-                {c}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+        <Text style={[styles.chipText, active && styles.chipTextActive]}>
+          {c}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
-      {/* Lista de productos */}
-      {loading ? (
+  const renderProduct = ({ item }: { item: Producto }) => (
+    <ProductCard producto={item} onAdd={onAdd} />
+  );
+
+  const ListHeader = () => (
+    <View style={styles.chipsContainer}>
+      {CATEGORIES.map(renderChip)}
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Header firstName={firstName} itemCount={itemCount} router={router} signOut={signOut} />
+        <ListHeader />
         <View style={styles.center}>
           <ActivityIndicator color="#C0392B" size="large" />
         </View>
-      ) : productos.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyEmoji}>🍽️</Text>
-          <Text style={styles.emptyTitle}>Sin productos</Text>
-          <Text style={styles.emptySubtitle}>
-            No encontramos productos en esta categoría
-          </Text>
-        </View>
-      ) : (
-        <FlatList
-          data={productos}
-          keyExtractor={(p) => String(p.id)}
-          numColumns={2}
-          columnWrapperStyle={styles.gridRow}
-          contentContainerStyle={styles.gridContent}
-          renderItem={({ item }) => (
-            <ProductCard producto={item} onAdd={onAdd} />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#C0392B"
-              colors={['#C0392B']}
-            />
-          }
-        />
-      )}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Header firstName={firstName} itemCount={itemCount} router={router} signOut={signOut} />
+      <FlatList
+        data={productos}
+        keyExtractor={(p) => String(p.id)}
+        numColumns={2}
+        columnWrapperStyle={styles.gridRow}
+        contentContainerStyle={styles.gridContent}
+        ListHeaderComponent={ListHeader}
+        stickyHeaderIndices={[0]}
+        renderItem={renderProduct}
+        ListEmptyComponent={
+          <View style={styles.center}>
+            <Text style={styles.emptyEmoji}>🍽️</Text>
+            <Text style={styles.emptyTitle}>Sin productos</Text>
+            <Text style={styles.emptySubtitle}>
+              No encontramos productos en esta categoría
+            </Text>
+          </View>
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#C0392B"
+            colors={['#C0392B']}
+          />
+        }
+      />
+    </View>
+  );
+}
+
+function Header({ firstName, itemCount, router, signOut }: any) {
+  return (
+    <View style={styles.header}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.greeting}>Hola, {firstName} 👋</Text>
+        <Text style={styles.subtitle}>¿Qué te llevas hoy?</Text>
+      </View>
+      <TouchableOpacity
+        style={styles.cartBtn}
+        onPress={() => router.push('/(estudiante)/carrito')}
+      >
+        <Text style={styles.cartIcon}>🛒</Text>
+        {itemCount > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{itemCount}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.puntosBtn}
+        onPress={() => router.push('/(estudiante)/puntos')}
+      >
+        <Text style={styles.puntosIcon}>⭐</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={signOut} style={styles.logoutBtn} activeOpacity={0.7}>
+        <Text style={styles.logoutText}>Salir</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -183,6 +186,8 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 10,
     backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   greeting: { fontSize: 18, fontWeight: '800', color: '#1F2937' },
   subtitle: { fontSize: 13, color: '#6B7280', marginTop: 2 },
@@ -194,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: 6,
     position: 'relative',
   },
   cartIcon: { fontSize: 20 },
@@ -212,16 +217,35 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
 
+  puntosBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFF7ED',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 6,
+  },
+  puntosIcon: { fontSize: 20 },
+
   logoutBtn: { paddingHorizontal: 8, paddingVertical: 6 },
   logoutText: { color: '#6B7280', fontSize: 13, fontWeight: '600' },
 
-  chipsRow: { paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
+  chipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
   chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: '#F5F5F5',
-    marginRight: 8,
   },
   chipActive: { backgroundColor: '#C0392B' },
   chipText: { color: '#374151', fontWeight: '600', fontSize: 13 },

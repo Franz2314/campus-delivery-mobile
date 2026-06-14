@@ -10,9 +10,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -90,23 +92,35 @@ export default function SeguimientoScreen() {
     return found?.nombre || `Pabellón ${pedido.pabellon_id}`;
   }, [pedido, pabellones]);
 
+  const [cancelReason, setCancelReason] = useState('');
+  const [showCancelInput, setShowCancelInput] = useState(false);
+
   const onCancelar = () => {
     if (!id) return;
-    Alert.alert('Cancelar pedido', '¿Seguro que quieres cancelar este pedido?', [
-      { text: 'No', style: 'cancel' },
-      {
-        text: 'Sí, cancelar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await pedidosService.cancelar(id);
-            cargar(false);
-          } catch {
-            Alert.alert('Error', 'No se pudo cancelar el pedido.');
-          }
+    if (!showCancelInput) {
+      setShowCancelInput(true);
+      return;
+    }
+    Alert.alert(
+      'Cancelar pedido',
+      `Motivo: ${cancelReason || 'Sin motivo'}\n\n¿Seguro que quieres cancelar?`,
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Sí, cancelar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await pedidosService.cancelar(id, cancelReason || undefined);
+              setShowCancelInput(false);
+              cargar(false);
+            } catch {
+              Alert.alert('Error', 'No se pudo cancelar el pedido.');
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   if (loading) {
@@ -154,10 +168,44 @@ export default function SeguimientoScreen() {
         <Text style={styles.cardValue}>{pabellonNombre()}</Text>
       </View>
 
+      {pedido.piso && (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>Piso</Text>
+          <Text style={styles.cardValue}>Piso {pedido.piso}</Text>
+        </View>
+      )}
+
       <View style={styles.card}>
         <Text style={styles.cardLabel}>Hora programada</Text>
         <Text style={styles.cardValue}>{horaFormateada}</Text>
       </View>
+
+      {pedido.comprobante_url && (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>Comprobante de pago</Text>
+          <Image
+            source={{ uri: pedido.comprobante_url }}
+            style={styles.comprobanteImage}
+            resizeMode="contain"
+          />
+          {pedido.comprobante_verificado && (
+            <Text style={styles.verifiedText}>✅ Comprobante verificado</Text>
+          )}
+          {pedido.comprobante_rechazado && (
+            <Text style={styles.rejectedText}>
+              ❌ Comprobante rechazado{pedido.motivo_cancelacion ? `: ${pedido.motivo_cancelacion}` : ''}
+            </Text>
+          )}
+        </View>
+      )}
+
+      {esCancelado && pedido.motivo_cancelacion && (
+        <View style={styles.cancelBox}>
+          <Text style={styles.cancelText}>
+            Motivo: {pedido.motivo_cancelacion}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.card}>
         <Text style={styles.cardLabel}>Total</Text>
@@ -210,9 +258,22 @@ export default function SeguimientoScreen() {
       )}
 
       {puedeCancelar && (
-        <TouchableOpacity style={styles.cancelBtn} onPress={onCancelar}>
-          <Text style={styles.cancelBtnText}>Cancelar pedido</Text>
-        </TouchableOpacity>
+        <>
+          {showCancelInput && (
+            <TextInput
+              style={styles.reasonInput}
+              placeholder="Motivo de cancelación (opcional)"
+              placeholderTextColor="#9CA3AF"
+              value={cancelReason}
+              onChangeText={setCancelReason}
+            />
+          )}
+          <TouchableOpacity style={styles.cancelBtn} onPress={onCancelar}>
+            <Text style={styles.cancelBtnText}>
+              {showCancelInput ? 'Confirmar cancelación' : 'Cancelar pedido'}
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
 
       <TouchableOpacity
@@ -270,6 +331,16 @@ const styles = StyleSheet.create({
   timelineLabel: { marginLeft: 12, marginTop: 8, fontSize: 14, color: '#9CA3AF' },
   timelineLabelReached: { color: '#1F2937', fontWeight: '600' },
 
+  comprobanteImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginTop: 8,
+    backgroundColor: '#F3F4F6',
+  },
+  verifiedText: { color: '#16A34A', fontWeight: '700', marginTop: 8, fontSize: 13 },
+  rejectedText: { color: '#DC2626', fontWeight: '700', marginTop: 8, fontSize: 13 },
+
   cancelBox: {
     backgroundColor: '#FEE2E2',
     borderRadius: 10,
@@ -277,6 +348,17 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   cancelText: { color: '#7F1D1D', fontWeight: '600', textAlign: 'center' },
+
+  reasonInput: {
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    color: '#1F2937',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+  },
 
   cancelBtn: {
     marginTop: 18,

@@ -28,6 +28,10 @@ interface TimeSlot {
   minutes: number;
 }
 
+function getMaxPisos(maxPisos: number | undefined): number {
+  return Math.max(1, maxPisos ?? 8);
+}
+
 const TIME_SLOTS: TimeSlot[] = [
   { label: 'Lo antes posible', minutes: 0 },
   { label: 'En 15 min', minutes: 15 },
@@ -44,6 +48,7 @@ export default function CarritoScreen() {
 
   const [pabellones, setPabellones] = useState<Pabellon[]>([]);
   const [pabellonId, setPabellonId] = useState<number | string | null>(null);
+  const [piso, setPiso] = useState(1);
   const [loadingPabs, setLoadingPabs] = useState(true);
   const [slotIndex, setSlotIndex] = useState(0);
   const [customHour, setCustomHour] = useState('');
@@ -126,6 +131,7 @@ export default function CarritoScreen() {
       pathname: '/(estudiante)/pedido',
       params: {
         pabellon_id: String(pabellonId),
+        piso: String(piso),
         hora_programada: hora,
       },
     });
@@ -213,7 +219,7 @@ export default function CarritoScreen() {
             return (
               <Pressable
                 key={String(p.id)}
-                onPress={() => setPabellonId(p.id)}
+                onPress={() => { setPabellonId(p.id); setPiso(1); }}
                 style={[styles.chip, active && styles.chipActive]}
               >
                 <Text
@@ -229,6 +235,30 @@ export default function CarritoScreen() {
           })}
         </ScrollView>
       )}
+
+      {/* Piso */}
+      {pabellonId && (() => {
+        const pab = pabellones.find((p) => String(p.id) === String(pabellonId));
+        const maxPisos = getMaxPisos(pab?.max_pisos);
+        return (
+          <>
+            <Text style={styles.sectionTitle}>Piso</Text>
+            <View style={styles.pisoRow}>
+              {Array.from({ length: maxPisos }, (_, i) => i + 1).map((n) => (
+                <Pressable
+                  key={n}
+                  onPress={() => setPiso(n)}
+                  style={[styles.pisoChip, piso === n && styles.pisoChipActive]}
+                >
+                  <Text style={[styles.pisoChipText, piso === n && styles.pisoChipTextActive]}>
+                    {n}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </>
+        );
+      })()}
 
       {/* Hora */}
       <Text style={styles.sectionTitle}>Hora de entrega</Text>
@@ -370,6 +400,16 @@ const styles = StyleSheet.create({
     fontSize: 18, fontWeight: '700', color: '#1F2937', backgroundColor: '#FAFAFA',
   },
   timeSep: { fontSize: 20, fontWeight: '700', color: '#1F2937', marginHorizontal: 6 },
+
+  pisoRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  pisoChip: {
+    width: 40, height: 40, borderRadius: 20,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F5F5F5', marginRight: 8, marginBottom: 8,
+  },
+  pisoChipActive: { backgroundColor: '#C0392B' },
+  pisoChipText: { color: '#374151', fontWeight: '700', fontSize: 14 },
+  pisoChipTextActive: { color: '#FFFFFF' },
 
   helpText: { color: '#6B7280', fontSize: 12 },
 

@@ -1,13 +1,3 @@
-/**
- * Servicio de pedidos.
- *
- * Endpoints consumidos:
- *   POST /pedidos                  Crear pedido (con hora_programada)
- *   GET  /pedidos                  Listar pedidos del usuario/rol actual
- *   GET  /pedidos/:id              Detalle de pedido
- *   PUT  /pedidos/:id/estado       Actualizar estado (repartidor/negocio)
- *   PUT  /pedidos/:id/cancelar     Cancelar pedido (estudiante)
- */
 import api from './api';
 
 export type EstadoPedido =
@@ -16,7 +6,8 @@ export type EstadoPedido =
   | 'en_preparacion'
   | 'en_camino'
   | 'entregado'
-  | 'cancelado';
+  | 'cancelado'
+  | 'rechazado';
 
 export interface DetallePedido {
   producto_id: number | string;
@@ -29,15 +20,20 @@ export interface DetallePedido {
 export interface Pedido {
   id: number | string;
   usuario_id: number | string;
+  estudiante_id?: number | string;
   repartidor_id?: number | string | null;
   negocio_id: number | string;
   negocio_nombre: string;
   pabellon_id: number | string;
   pabellon_nombre?: string;
+  piso?: number;
   estado: EstadoPedido;
   total: number;
-  hora_programada: string; // ISO 8601
+  hora_programada: string;
   comprobante_url?: string;
+  comprobante_verificado?: boolean;
+  comprobante_rechazado?: boolean;
+  motivo_cancelacion?: string;
   created_at: string;
   updated_at: string;
   detalles?: DetallePedido[];
@@ -50,42 +46,40 @@ export interface ItemPedido {
 
 export interface CrearPedidoPayload {
   pabellon_id: number | string;
+  piso?: number;
   hora_programada: string;
   items: ItemPedido[];
   comprobante_url?: string;
 }
 
 const pedidosService = {
-  /** Crea un pedido. */
   async crear(payload: CrearPedidoPayload): Promise<Pedido> {
     const res = await api.post<Pedido>('/pedidos', payload);
     return res.data;
   },
 
-  /** Lista pedidos del usuario/rol actual. */
   async listar(): Promise<Pedido[]> {
     const res = await api.get<Pedido[]>('/pedidos');
     return res.data;
   },
 
-  /** Detalle de un pedido. */
   async detalle(id: number | string): Promise<Pedido> {
     const res = await api.get<Pedido>(`/pedidos/${id}`);
     return res.data;
   },
 
-  /** Actualiza el estado (repartidor/negocio). */
-  async actualizarEstado(
-    id: number | string,
-    estado: EstadoPedido,
-  ): Promise<Pedido> {
+  async actualizarEstado(id: number | string, estado: EstadoPedido): Promise<Pedido> {
     const res = await api.put<Pedido>(`/pedidos/${id}/estado`, { estado });
     return res.data;
   },
 
-  /** Cancela un pedido (estudiante). */
-  async cancelar(id: number | string): Promise<Pedido> {
-    const res = await api.put<Pedido>(`/pedidos/${id}/cancelar`);
+  async cancelar(id: number | string, motivo?: string): Promise<Pedido> {
+    const res = await api.put<Pedido>(`/pedidos/${id}/cancelar`, { motivo });
+    return res.data;
+  },
+
+  async rechazarComprobante(id: number | string, motivo: string): Promise<Pedido> {
+    const res = await api.put<Pedido>(`/pedidos/${id}/rechazar-comprobante`, { motivo });
     return res.data;
   },
 };

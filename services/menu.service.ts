@@ -36,7 +36,9 @@ export interface Negocio {
 export interface Pabellon {
   id: number | string;
   nombre: string;
+  codigo?: string;
   descripcion?: string;
+  max_pisos?: number;
 }
 
 export interface ResenaPayload {

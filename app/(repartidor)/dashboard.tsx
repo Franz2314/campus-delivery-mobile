@@ -165,6 +165,7 @@ export default function RepartidorDashboard() {
                   {item.pabellon_nombre && (
                     <Text style={styles.metaText}>
                       📍 {item.pabellon_nombre}
+                      {item.piso ? ` · Piso ${item.piso}` : ''}
                     </Text>
                   )}
                 </View>

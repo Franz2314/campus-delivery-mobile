@@ -10,9 +10,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -31,6 +33,8 @@ export default function EntregaScreen() {
   const [pabellones, setPabellones] = useState<Pabellon[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [showCancelInput, setShowCancelInput] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -152,10 +156,28 @@ export default function EntregaScreen() {
         <Text style={styles.cardValue}>{pabellonNombre()}</Text>
       </View>
 
+      {pedido.piso && (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>🏢 Piso</Text>
+          <Text style={styles.cardValue}>Piso {pedido.piso}</Text>
+        </View>
+      )}
+
       <View style={styles.card}>
         <Text style={styles.cardLabel}>🕐 Hora programada</Text>
         <Text style={styles.cardValue}>{horaFormateada}</Text>
       </View>
+
+      {pedido.comprobante_url && (
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>📎 Comprobante de pago</Text>
+          <Image
+            source={{ uri: pedido.comprobante_url }}
+            style={styles.comprobanteImage}
+            resizeMode="contain"
+          />
+        </View>
+      )}
 
       {pedido.detalles && pedido.detalles.length > 0 && (
         <View style={styles.card}>
@@ -186,21 +208,63 @@ export default function EntregaScreen() {
         </View>
       ) : cancelado ? (
         <View style={styles.cancelBox}>
-          <Text style={styles.cancelText}>Este pedido fue cancelado.</Text>
+          <Text style={styles.cancelText}>
+            Este pedido fue cancelado.
+            {pedido.motivo_cancelacion ? `\nMotivo: ${pedido.motivo_cancelacion}` : ''}
+          </Text>
         </View>
       ) : (
-        <TouchableOpacity
-          style={[styles.btn, confirming && { opacity: 0.7 }]}
-          onPress={onConfirmar}
-          disabled={confirming}
-          activeOpacity={0.85}
-        >
-          {confirming ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.btnText}>Confirmar entrega</Text>
+        <>
+          {showCancelInput && (
+            <TextInput
+              style={styles.cancelInput}
+              placeholder="Motivo de cancelación"
+              placeholderTextColor="#9CA3AF"
+              value={cancelReason}
+              onChangeText={setCancelReason}
+            />
           )}
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.btn, confirming && { opacity: 0.7 }]}
+            onPress={onConfirmar}
+            disabled={confirming}
+            activeOpacity={0.85}
+          >
+            {confirming ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.btnText}>Confirmar entrega</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelActionBtn}
+            onPress={() => {
+              if (!showCancelInput) {
+                setShowCancelInput(true);
+              } else {
+                Alert.alert('Cancelar pedido', `Motivo: ${cancelReason || 'Sin motivo'}`, [
+                  { text: 'No', style: 'cancel' },
+                  {
+                    text: 'Sí, cancelar',
+                    style: 'destructive',
+                    onPress: async () => {
+                      try {
+                        await pedidosService.cancelar(id!, cancelReason || undefined);
+                        cargar(false);
+                      } catch {
+                        Alert.alert('Error', 'No se pudo cancelar');
+                      }
+                    },
+                  },
+                ]);
+              }
+            }}
+          >
+            <Text style={styles.cancelActionText}>
+              {showCancelInput ? 'Confirmar cancelación' : 'Cancelar pedido'}
+            </Text>
+          </TouchableOpacity>
+        </>
       )}
 
       <TouchableOpacity
@@ -282,6 +346,8 @@ const styles = StyleSheet.create({
   },
   successText: { color: '#14532D', fontWeight: '700', textAlign: 'center' },
 
+  comprobanteImage: { width: '100%', height: 180, borderRadius: 8, marginTop: 8, backgroundColor: '#F3F4F6' },
+
   cancelBox: {
     backgroundColor: '#FEE2E2',
     borderRadius: 10,
@@ -289,6 +355,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   cancelText: { color: '#7F1D1D', fontWeight: '600', textAlign: 'center' },
+  cancelInput: {
+    borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 8,
+    padding: 12, fontSize: 14, color: '#1F2937', marginBottom: 8,
+  },
+  cancelActionBtn: {
+    marginTop: 8, paddingVertical: 12, borderRadius: 10,
+    borderWidth: 1, borderColor: '#C0392B', alignItems: 'center',
+  },
+  cancelActionText: { color: '#C0392B', fontWeight: '700', fontSize: 14 },
 
   errorEmoji: { fontSize: 48, marginBottom: 12 },
   errorTitle: { fontSize: 16, fontWeight: '700', color: '#1F2937', marginBottom: 16 },
