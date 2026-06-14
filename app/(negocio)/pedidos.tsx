@@ -98,65 +98,24 @@ export default function NegocioPedidosScreen() {
     }
   };
 
-  const [selectedCancel, setSelectedCancel] = useState<string | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [cancelMotive, setCancelMotive] = useState('');
 
-  const onCancel = (p: Pedido) => {
-    if (['pendiente', 'confirmado'].includes(p.estado)) {
-      if (selectedCancel === String(p.id)) {
-        Alert.alert(
-          'Cancelar pedido',
-          `Motivo: ${cancelMotive || 'Sin motivo'}`,
-          [
-            { text: 'No', style: 'cancel' },
-            {
-              text: 'Sí, cancelar',
-              style: 'destructive',
-              onPress: async () => {
-                try {
-                  await pedidosService.cancelar(p.id, cancelMotive || undefined);
-                  setSelectedCancel(null);
-                  setCancelMotive('');
-                  cargar(false);
-                } catch {
-                  Alert.alert('Error', 'No se pudo cancelar');
-                }
-              },
-            },
-          ],
-        );
-      } else {
-        setSelectedCancel(String(p.id));
-        setCancelMotive('');
-      }
+  const onCancel = async (p: Pedido) => {
+    if (!['pendiente', 'confirmado'].includes(p.estado)) return;
+    if (cancelTarget !== String(p.id)) {
+      setCancelTarget(String(p.id));
+      setCancelMotive('');
+      return;
     }
-  };
-
-  const onRechazarComprobante = (p: Pedido) => {
-    Alert.prompt
-      ? Alert.prompt('Rechazar comprobante', 'Motivo del rechazo:', async (motivo) => {
-          if (!motivo) return;
-          try {
-            await pedidosService.rechazarComprobante(p.id, motivo);
-            cargar(false);
-          } catch {
-            Alert.alert('Error', 'No se pudo rechazar');
-          }
-        })
-      : Alert.alert('Rechazar comprobante', 'Motivo:', [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Rechazar',
-            onPress: async () => {
-              try {
-                await pedidosService.rechazarComprobante(p.id, 'Comprobante inválido');
-                cargar(false);
-              } catch {
-                Alert.alert('Error', 'No se pudo rechazar');
-              }
-            },
-          },
-        ]);
+    try {
+      await pedidosService.cancelar(p.id, cancelMotive || undefined);
+      setCancelTarget(null);
+      setCancelMotive('');
+      cargar(false);
+    } catch {
+      Alert.alert('Error', 'No se pudo cancelar el pedido');
+    }
   };
 
   const renderCard = (p: Pedido) => {
@@ -165,7 +124,7 @@ export default function NegocioPedidosScreen() {
       dateStyle: 'short',
       timeStyle: 'short',
     });
-    const isCancelSelected = selectedCancel === String(p.id);
+    const isCancelSelected = cancelTarget === String(p.id);
 
     return (
       <View style={styles.card}>
@@ -218,31 +177,11 @@ export default function NegocioPedidosScreen() {
               style={styles.comprobanteImage}
               resizeMode="contain"
             />
-            <View style={styles.comprobanteActions}>
-              <TouchableOpacity
-                style={styles.verifyBtn}
-                onPress={async () => {
-                  try {
-                    await pedidosService.actualizarEstado(p.id, 'confirmado');
-                    cargar(false);
-                  } catch {
-                    Alert.alert('Error', 'No se pudo verificar');
-                  }
-                }}
-              >
-                <Text style={styles.verifyBtnText}>✅ Verificar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.rejectBtn}
-                onPress={() => onRechazarComprobante(p)}
-              >
-                <Text style={styles.rejectBtnText}>❌ Rechazar</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.comprobanteHint}>El comprobante se verificará al confirmar el pedido</Text>
           </View>
         )}
 
-        {p.comprobante_url && p.estado !== 'pendiente' && (
+        {p.comprobante_url && !['pendiente'].includes(p.estado) && (
           <View style={styles.comprobanteSection}>
             <Image
               source={{ uri: p.comprobante_url }}
@@ -269,7 +208,7 @@ export default function NegocioPedidosScreen() {
         {isCancelSelected && (
           <TextInput
             style={styles.cancelInput}
-            placeholder="Motivo de cancelación"
+            placeholder="Motivo de cancelación (opcional)"
             placeholderTextColor="#9CA3AF"
             value={cancelMotive}
             onChangeText={setCancelMotive}
@@ -302,7 +241,7 @@ export default function NegocioPedidosScreen() {
                 onPress={() => onCancel(p)}
               >
                 <Text style={styles.cancelBtnText}>
-                  {isCancelSelected ? 'Confirmar cancelación' : 'Cancelar pedido'}
+                  {cancelTarget === String(p.id) ? 'Confirmar cancelación' : 'Cancelar pedido'}
                 </Text>
               </TouchableOpacity>
             )}
@@ -424,6 +363,7 @@ const styles = StyleSheet.create({
   comprobanteSection: { marginTop: 12 },
   comprobanteImage: { width: '100%', height: 180, borderRadius: 8, backgroundColor: '#F3F4F6' },
   comprobanteImageSmall: { width: '100%', height: 120, borderRadius: 8, backgroundColor: '#F3F4F6' },
+  comprobanteHint: { color: '#6B7280', fontSize: 11, marginTop: 4, textAlign: 'center' },
   comprobanteActions: { flexDirection: 'row', gap: 8, marginTop: 8 },
   verifyBtn: {
     flex: 1, backgroundColor: '#16A34A', borderRadius: 8, paddingVertical: 10,
