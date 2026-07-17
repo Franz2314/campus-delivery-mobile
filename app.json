@@ -65,9 +65,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "https://api-production-197c.up.railway.app/api",
-      "apiUrlAndroid": "https://api-production-197c.up.railway.app/api",
-      "apiUrlPhone": "https://api-production-197c.up.railway.app/api",
+      "apiUrl": "https://campus-delivery-api.onrender.com/api",
+      "apiUrlAndroid": "https://campus-delivery-api.onrender.com/api",
+      "apiUrlPhone": "https://campus-delivery-api.onrender.com/api",
       "router": {
         "origin": false
       },

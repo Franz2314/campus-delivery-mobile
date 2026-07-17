@@ -54,6 +54,12 @@ const STATUS_MAP: Record<EstadoPedido, StatusStyle> = {
     bg: '#FEE2E2',
     icon: '❌',
   },
+  rechazado: {
+    label: 'Rechazado',
+    color: '#7F1D1D',
+    bg: '#FEE2E2',
+    icon: '🚫',
+  },
 };
 
 export default function OrderStatus({ estado }: Props) {
