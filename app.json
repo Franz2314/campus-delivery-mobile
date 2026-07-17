@@ -65,9 +65,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "https://campus-delivery-api.onrender.com/api",
-      "apiUrlAndroid": "https://campus-delivery-api.onrender.com/api",
-      "apiUrlPhone": "https://campus-delivery-api.onrender.com/api",
+      "apiUrl": "https://campus-delivery-backend-avyi.onrender.com/api",
+      "apiUrlAndroid": "https://campus-delivery-backend-avyi.onrender.com/api",
+      "apiUrlPhone": "https://campus-delivery-backend-avyi.onrender.com/api",
       "router": {
         "origin": false
       },
