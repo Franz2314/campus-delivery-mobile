@@ -17,7 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "pe.utp.campusdelivery",
       "infoPlist": {
-        "NSCameraUsageDescription": "Necesitamos la cámara para fotografiar el comprobante de pago Yape/Plin."
+        "NSCameraUsageDescription": "Necesitamos la c\u00e1mara para fotografiar el comprobante de pago Yape/Plin."
       }
     },
     "android": {
@@ -39,7 +39,10 @@
             "host": "*",
             "pathPrefix": "/"
           },
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -48,7 +51,11 @@
       "output": "single",
       "favicon": "./assets/favicon.png"
     },
-    "platforms": ["ios", "android", "web"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "plugins": [
       "expo-router",
       "expo-secure-store",
@@ -57,7 +64,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Necesitamos acceder a tu galería para subir el comprobante de pago."
+          "photosPermission": "Necesitamos acceder a tu galer\u00eda para subir el comprobante de pago."
         }
       ]
     ],

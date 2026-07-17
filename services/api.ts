@@ -6,6 +6,7 @@ import * as storage from './storage';
 const apiUrlConfig = Constants.expoConfig?.extra as Record<string, string> | undefined;
 
 const API_BASE_URL: string =
+  Platform.OS === 'web' ? '/api' :
   Platform.OS === 'android'
     ? (apiUrlConfig?.apiUrlPhone || apiUrlConfig?.apiUrlAndroid || 'http://10.0.2.2:3000/api')
     : (apiUrlConfig?.apiUrl || 'http://localhost:3000/api');
