@@ -24,6 +24,7 @@ import { useAuth } from '../../hooks/useAuth';
 import pedidosService, { Pedido } from '../../services/pedidos.service';
 import OrderStatus from '../../components/OrderStatus';
 
+export const title = 'Panel';
 export default function RepartidorDashboard() {
   const { user, signOut } = useAuth();
   const router = useRouter();

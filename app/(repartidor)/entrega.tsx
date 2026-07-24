@@ -26,6 +26,7 @@ import OrderStatus from '../../components/OrderStatus';
 
 const POLL_INTERVAL_MS = 10_000;
 
+export const title = 'Entrega';
 export default function EntregaScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();

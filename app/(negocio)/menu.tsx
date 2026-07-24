@@ -50,6 +50,7 @@ const FORM_INICIAL: FormState = {
   disponible: true,
 };
 
+export const title = 'Productos';
 export default function NegocioMenuScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();

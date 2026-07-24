@@ -12,6 +12,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import puntosService, { Canje, Recompensa } from '../../services/puntos.service';
 
+export const title = 'Mis Puntos';
 export default function PuntosScreen() {
   const router = useRouter();
   const [saldo, setSaldo] = useState(0);

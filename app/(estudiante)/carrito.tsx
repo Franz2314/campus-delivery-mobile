@@ -42,6 +42,7 @@ const TIME_SLOTS: TimeSlot[] = [
 
 const CUSTOM_INDEX = TIME_SLOTS.length; // slot para "Hora específica"
 
+export const title = 'Carrito';
 export default function CarritoScreen() {
   const router = useRouter();
   const { items, total, updateQuantity, removeItem, clear } = useCart();

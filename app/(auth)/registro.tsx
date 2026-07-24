@@ -47,6 +47,7 @@ const ROLES: { value: Rol; label: string; desc: string; icon: string }[] = [
 
 const UTP_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@utp\.edu\.pe$/;
 
+export const title = 'Crear cuenta';
 export default function RegistroScreen() {
   const { signUp } = useAuth();
   const [nombre, setNombre] = useState('');

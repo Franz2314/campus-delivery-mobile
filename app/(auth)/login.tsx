@@ -21,6 +21,7 @@ import { Link } from 'expo-router';
 
 import { useAuth } from '../../hooks/useAuth';
 
+export const title = 'Iniciar sesión';
 export default function LoginScreen() {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');

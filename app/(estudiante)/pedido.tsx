@@ -23,6 +23,7 @@ import { useCart } from '../../hooks/useCart';
 import pedidosService from '../../services/pedidos.service';
 import PaymentModal from '../../components/PaymentModal';
 
+export const title = 'Confirmar pedido';
 export default function PedidoScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{

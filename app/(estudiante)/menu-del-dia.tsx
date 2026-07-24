@@ -30,6 +30,7 @@ const TIPO_LABEL: Record<string, string> = {
   bebida: 'Bebida',
 };
 
+export const title = 'Menú del Día';
 export default function MenuDelDiaScreen() {
   const { user, signOut } = useAuth();
   const { addItem, itemCount } = useCart();

@@ -40,6 +40,7 @@ const ESTADOS: EstadoItem[] = [
 
 const POLL_INTERVAL_MS = 10_000;
 
+export const title = 'Seguimiento';
 export default function SeguimientoScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();

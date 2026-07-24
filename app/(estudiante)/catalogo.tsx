@@ -17,6 +17,7 @@ import ProductCard from '../../components/ProductCard';
 
 const CATEGORIES = ['Todos', 'Snacks', 'Almuerzos', 'Bebidas', 'Postres'];
 
+export const title = 'Catálogo';
 export default function CatalogoScreen() {
   const { user, signOut } = useAuth();
   const { addItem, itemCount } = useCart();

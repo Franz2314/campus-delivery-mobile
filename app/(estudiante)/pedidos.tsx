@@ -14,6 +14,7 @@ import { useAuth } from '../../hooks/useAuth';
 import pedidosService, { Pedido } from '../../services/pedidos.service';
 import OrderStatus from '../../components/OrderStatus';
 
+export const title = 'Mis pedidos';
 export default function MisPedidosScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();

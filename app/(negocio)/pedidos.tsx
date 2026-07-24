@@ -39,6 +39,7 @@ const ACCIONES_POR_ESTADO: Partial<
   en_preparacion: [{ label: 'Listo para entregar', next: 'en_camino' }],
 };
 
+export const title = 'Mis pedidos';
 export default function NegocioPedidosScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();

@@ -33,6 +33,7 @@ interface MenuForm {
 
 const FORM_INICIAL: MenuForm = { nombre: '', descripcion: '', precio: '', disponible: true };
 
+export const title = 'Menús del Día';
 export default function GestionMenusScreen() {
   const router = useRouter();
   const { user, signOut } = useAuth();
