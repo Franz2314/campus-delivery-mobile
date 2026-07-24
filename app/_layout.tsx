@@ -33,19 +33,7 @@ export default function RootLayout() {
     <AuthProvider>
       <CartProvider>
         <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerStyle: { backgroundColor: '#C0392B' },
-            headerTintColor: '#FFFFFF',
-            headerTitleStyle: { fontWeight: '700' },
-            contentStyle: { backgroundColor: '#FFFFFF' },
-          }}
-        >
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(estudiante)" options={{ headerShown: false }} />
-          <Stack.Screen name="(repartidor)" options={{ headerShown: false }} />
-          <Stack.Screen name="(negocio)" options={{ headerShown: false }} />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' } }} />
       </CartProvider>
     </AuthProvider>
   );
