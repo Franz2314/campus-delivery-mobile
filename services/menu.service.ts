@@ -71,6 +71,24 @@ export interface ActualizarProductoPayload {
   disponible?: boolean;
 }
 
+export interface MenuItem {
+  id: number | string;
+  tipo: 'entrada' | 'sopa' | 'plato_fuerte' | 'postre' | 'bebida';
+  nombre: string;
+  descripcion?: string;
+}
+
+export interface Menu {
+  id: number | string;
+  negocio_id: number | string;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  imagen_url?: string;
+  disponible: boolean;
+  items: MenuItem[];
+}
+
 const menuService = {
   /** Lista productos del catálogo. Soporta filtros opcionales. */
   async listarProductos(filtros: ProductosFiltros = {}): Promise<Producto[]> {
@@ -124,6 +142,78 @@ const menuService = {
   /** Crea una reseña post-entrega. */
   async crearResena(payload: ResenaPayload): Promise<void> {
     await api.post('/resenas', payload);
+  },
+
+  // ── Menús del Día ───────────────────────────────────────────────────
+
+  /** Lista los menús del día (filtro opcional por negocio). */
+  async listarMenus(negocio_id?: string): Promise<Menu[]> {
+    const params: Record<string, string> = {};
+    if (negocio_id) params.negocio_id = negocio_id;
+    const res = await api.get<Menu[]>('/menus', { params });
+    return res.data;
+  },
+
+  /** Detalle de un menú con sus items. */
+  async detalleMenu(id: number | string): Promise<Menu> {
+    const res = await api.get<Menu>(`/menus/${id}`);
+    return res.data;
+  },
+
+  /** Crea un menú (rol negocio). */
+  async crearMenu(payload: {
+    nombre: string;
+    descripcion?: string;
+    precio: number;
+    imagen_url?: string;
+  }): Promise<Menu> {
+    const res = await api.post<Menu>('/menus', payload);
+    return res.data;
+  },
+
+  /** Actualiza un menú. */
+  async actualizarMenu(
+    id: number | string,
+    payload: {
+      nombre?: string;
+      descripcion?: string;
+      precio?: number;
+      imagen_url?: string;
+      disponible?: boolean;
+    },
+  ): Promise<Menu> {
+    const res = await api.put<Menu>(`/menus/${id}`, payload);
+    return res.data;
+  },
+
+  /** Elimina un menú. */
+  async eliminarMenu(id: number | string): Promise<void> {
+    await api.delete(`/menus/${id}`);
+  },
+
+  /** Agrega un item a un menú. */
+  async agregarMenuItem(menuId: number | string, payload: {
+    tipo: string;
+    nombre: string;
+    descripcion?: string;
+  }): Promise<MenuItem> {
+    const res = await api.post<MenuItem>(`/menus/${menuId}/items`, payload);
+    return res.data;
+  },
+
+  /** Actualiza un item del menú. */
+  async actualizarMenuItem(id: number | string, payload: {
+    tipo?: string;
+    nombre?: string;
+    descripcion?: string;
+  }): Promise<MenuItem> {
+    const res = await api.put<MenuItem>(`/menu-items/${id}`, payload);
+    return res.data;
+  },
+
+  /** Elimina un item del menú. */
+  async eliminarMenuItem(id: number | string): Promise<void> {
+    await api.delete(`/menu-items/${id}`);
   },
 };
 

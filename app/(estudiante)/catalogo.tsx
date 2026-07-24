@@ -164,6 +164,12 @@ function Header({ firstName, itemCount, router, signOut }: any) {
         )}
       </TouchableOpacity>
       <TouchableOpacity
+        style={styles.menuBtn}
+        onPress={() => router.push('/(estudiante)/menu-del-dia')}
+      >
+        <Text style={styles.menuBtnIcon}>📋</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         style={styles.puntosBtn}
         onPress={() => router.push('/(estudiante)/puntos')}
       >
@@ -223,6 +229,12 @@ const styles = StyleSheet.create({
   },
   badgeText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
 
+  menuBtn: {
+    width: 42, height: 42, borderRadius: 21,
+    backgroundColor: '#F0FFF4', alignItems: 'center',
+    justifyContent: 'center', marginRight: 6,
+  },
+  menuBtnIcon: { fontSize: 18 },
   puntosBtn: {
     width: 42,
     height: 42,

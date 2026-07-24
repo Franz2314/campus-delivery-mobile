@@ -224,9 +224,15 @@ export default function NegocioMenuScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.headerTab}
+            onPress={() => router.push('/(negocio)/gestion-menus')}
+          >
+            <Text style={[styles.headerTabText]}>Menú del Día</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.headerTab}
             onPress={() => router.push('/(negocio)/menu')}
           >
-            <Text style={[styles.headerTabText, styles.headerTabActive]}>Menú</Text>
+            <Text style={[styles.headerTabText, styles.headerTabActive]}>Productos</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={signOut} activeOpacity={0.7}>
             <Text style={styles.logoutText}>Salir</Text>
